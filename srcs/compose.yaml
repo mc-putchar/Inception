@@ -1,0 +1,15 @@
+version: "3"
+services:
+  nginx:
+    container_name: nginx
+    image: "nginx-image"
+    build: "./nginx"
+    restart: unless-stopped
+    hostname: nginx-server
+    networks:
+      - inception-network
+    ports:
+      - "${SSL_PORT}:443"
+
+networks:
+  inception-network:

@@ -12,6 +12,7 @@ services:
       args: *arg
       tags:
         - i-nginx:42.0
+        - i-nginx:latest
     container_name: c-nginx
     ports:
       - 443:4243
@@ -24,13 +25,9 @@ services:
       - source: nginx_config
         target: /etc/nginx/nginx.conf
         mode: 0440
-      - source: webserver_sys_config
-        target: /etc/sysctl.conf
-        mode: 0440
-    volumes:
-      - wordpress:/var/www/html:ro
-      - adminer-data:/var/www/webapps/adminer:ro
-      - site-content:/var/www/static:ro
+    volumes_from:
+      - wordpress:ro
+      - adminer:ro
     secrets:
       - source: ssl-certificate
         target: ssl.crt
@@ -42,6 +39,25 @@ services:
     security_opt:
       - no-new-privileges:true
     restart: unless-stopped
+    sysctls:
+      net.ipv4.icmp_echo_ignore_broadcasts: 1
+      net.ipv4.icmp_ignore_bogus_error_responses: 1
+      net.ipv4.tcp_syncookies: 1
+      net.ipv4.conf.all.log_martians: 1
+      net.ipv4.conf.default.log_martians: 1
+      net.ipv4.conf.all.accept_source_route: 0
+      net.ipv4.conf.default.accept_source_route: 0
+      net.ipv4.conf.all.rp_filter: 1
+      net.ipv4.conf.default.rp_filter: 1
+      net.ipv4.conf.all.accept_redirects: 0
+      net.ipv4.conf.default.accept_redirects: 0
+      net.ipv4.conf.all.secure_redirects: 0
+      net.ipv4.conf.default.secure_redirects: 0
+      net.ipv4.conf.all.send_redirects: 0
+      net.ipv4.conf.default.send_redirects: 0
+      net.ipv4.ip_forward: 0
+ 
+
 
   wordpress:
     build:
@@ -49,6 +65,7 @@ services:
       args: *arg
       tags:
         - i-wordpress:42.0
+        - i-wordpress:latest
     container_name: c-wordpress
     networks:
       - inceptiNet
@@ -71,7 +88,7 @@ services:
     healthcheck:
       test: [ "CMD", "wp", "core", "is-installed" ]
       interval: 10s
-      retries: 10
+      retries: 12
       timeout: 10s
     restart: unless-stopped
 
@@ -81,6 +98,7 @@ services:
       args: *arg
       tags:
         - i-mariadb:42.0
+        - i-mariadb:latest
     container_name: c-mariadb
     networks:
       - inceptiNet
@@ -103,6 +121,7 @@ services:
       args: *arg
       tags:
         - i-adminer:42.0
+        - i-adminer:latest
     container_name: c-adminer
     networks:
       - inceptiNet
@@ -125,6 +144,7 @@ services:
       args: *arg
       tags:
         - i-redis:42.0
+        - i-redis:latest
     container_name: c-redis
     networks:
       - inceptiNet
@@ -166,8 +186,6 @@ volumes:
 configs:
   nginx_config:
     file: ./requirements/nginx/conf/nginx.conf
-  webserver_sys_config:
-    file: ./requirements/nginx/conf/sysctl.conf
   wp_fpm_config:
     file: ./requirements/wordpress/conf/www.conf
   redis_config:

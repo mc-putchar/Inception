@@ -21,11 +21,9 @@ if [ ! -f wp-config.php ]; then
 
 	wp theme install ${WP_THEME:=twentytwentythree} --activate
 
+	wp plugin install redis-cache --activate
 	wp config set WP_REDIS_HOST c-redis
 	wp config set WP_REDIS_PORT 6379
-
-	# wp plugin update --all
-	wp plugin install redis-cache --activate
 	wp redis enable
 fi
 

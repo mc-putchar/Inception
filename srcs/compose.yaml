@@ -1,0 +1,192 @@
+version: '3.8'
+
+name: inception
+
+x-alpine-version: &arg
+  version: ${ALPINE_VERSION}
+
+services:
+  nginx:
+    build:
+      context: ./requirements/nginx
+      args: *arg
+      tags:
+        - i-nginx:42.0
+    container_name: c-nginx
+    ports:
+      - 443:4243
+    networks:
+      - inceptiNet
+    depends_on:
+      wordpress:
+        condition: service_healthy
+    configs:
+      - source: nginx_config
+        target: /etc/nginx/nginx.conf
+        mode: 0440
+      - source: webserver_sys_config
+        target: /etc/sysctl.conf
+        mode: 0440
+    volumes:
+      - wordpress:/var/www/html:ro
+      - adminer-data:/var/www/webapps/adminer:ro
+      - site-content:/var/www/static:ro
+    secrets:
+      - source: ssl-certificate
+        target: ssl.crt
+        mode: 0440
+      - source: ssl-certificate-key
+        target: ssl.key
+        mode: 0440
+    cap_drop: ['ALL']
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+
+  wordpress:
+    build:
+      context: ./requirements/wordpress
+      args: *arg
+      tags:
+        - i-wordpress:42.0
+    container_name: c-wordpress
+    networks:
+      - inceptiNet
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    configs:
+      - source: wp_fpm_config
+        target: /etc/php81/php-fpm.d/www.conf
+        mode: 0440
+    volumes:
+      - wordpress:/var/www/html
+    env_file:
+      - wp.env
+      - mariadb.env
+    secrets:
+      - wp_db_password
+      - wp_admin_password
+      - wp_user_password
+    healthcheck:
+      test: [ "CMD", "wp", "core", "is-installed" ]
+      interval: 10s
+      retries: 10
+      timeout: 10s
+    restart: unless-stopped
+
+  mariadb:
+    build:
+      context: ./requirements/mariadb
+      args: *arg
+      tags:
+        - i-mariadb:42.0
+    container_name: c-mariadb
+    networks:
+      - inceptiNet
+    volumes:
+      - db-wordpress:/var/lib/mysql
+    env_file:
+      - mariadb.env
+    secrets:
+      - wp_db_password
+    healthcheck:
+      test: [ "CMD", "mariadb-admin", "ping", "--silent" ]
+      interval: 6s
+      retries: 6
+      timeout: 6s
+    restart: unless-stopped
+
+  adminer:
+    build:
+      context: ./requirements/bonus/adminer
+      args: *arg
+      tags:
+        - i-adminer:42.0
+    container_name: c-adminer
+    networks:
+      - inceptiNet
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    configs:
+      - source: adminer_config
+        target: /etc/php81/php-fpm.d/www.conf
+        mode: 0440
+    volumes:
+      - adminer-data:/var/www/webapps/adminer
+    environment:
+      - ADMINER_DEFAULT_SERVER=c-mariadb:3306
+    restart: unless-stopped
+
+  redis:
+    build:
+      context: ./requirements/bonus/redis
+      args: *arg
+      tags:
+        - i-redis:42.0
+    container_name: c-redis
+    networks:
+      - inceptiNet
+    configs:
+      - source: redis_config
+        target: /etc/redis.conf
+        mode: 0440
+    restart: unless-stopped
+
+volumes:
+  db-wordpress:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${DATADIR}/db-wordpress
+      o: bind
+
+  wordpress:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${DATADIR}/wordpress
+      o: bind
+
+  adminer-data: 
+    driver: local
+    driver_opts:
+      type: none
+      device: ${DATADIR}/adminer
+      o: bind
+
+  site-content:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${DATADIR}/site-content
+      o: bind
+
+configs:
+  nginx_config:
+    file: ./requirements/nginx/conf/nginx.conf
+  webserver_sys_config:
+    file: ./requirements/nginx/conf/sysctl.conf
+  wp_fpm_config:
+    file: ./requirements/wordpress/conf/www.conf
+  redis_config:
+    file: ./requirements/bonus/redis/conf/redis.conf
+  adminer_config:
+    file: ./requirements/bonus/adminer/conf/www.conf
+
+secrets:
+  ssl-certificate:
+    file: ${DATADIR}/ssl/site.crt
+  ssl-certificate-key:
+    file: ${DATADIR}/ssl/site.key
+  wp_db_password:
+    environment: "WP_DB_PASSWORD"
+  wp_admin_password:
+    environment: "WP_ADMIN_PASSWORD"
+  wp_user_password:
+    environment: "WP_USER_PASSWORD"
+
+networks:
+  inceptiNet:
+    driver: bridge

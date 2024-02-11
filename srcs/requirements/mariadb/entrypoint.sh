@@ -1,5 +1,6 @@
 #!/bin/sh
 
+if [ ! -f "/tmp/init.sql" ]; then
 if [ -z $(mariadb $WP_DB_NAME 2>&1 </dev/null) ]; then
 	echo "FLUSH PRIVILEGES;" > /tmp/init.sql
 else
@@ -12,6 +13,6 @@ FLUSH PRIVILEGES ;
 __instructions_end__
 	unset WP_DB_PASSWORD
 fi
-
+fi
 
 exec "$@"

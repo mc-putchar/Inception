@@ -12,7 +12,6 @@ services:
       args: *arg
       tags:
         - i-nginx:42.0
-        - i-nginx:latest
     container_name: c-nginx
     ports:
       - 443:4243
@@ -25,6 +24,8 @@ services:
       - source: nginx_config
         target: /etc/nginx/nginx.conf
         mode: 0440
+    volumes:
+      - site-content:/var/www/static:ro
     volumes_from:
       - wordpress:ro
       - adminer:ro
@@ -56,8 +57,6 @@ services:
       net.ipv4.conf.all.send_redirects: 0
       net.ipv4.conf.default.send_redirects: 0
       net.ipv4.ip_forward: 0
- 
-
 
   wordpress:
     build:
@@ -65,7 +64,6 @@ services:
       args: *arg
       tags:
         - i-wordpress:42.0
-        - i-wordpress:latest
     container_name: c-wordpress
     networks:
       - inceptiNet
@@ -98,7 +96,6 @@ services:
       args: *arg
       tags:
         - i-mariadb:42.0
-        - i-mariadb:latest
     container_name: c-mariadb
     networks:
       - inceptiNet
@@ -121,7 +118,6 @@ services:
       args: *arg
       tags:
         - i-adminer:42.0
-        - i-adminer:latest
     container_name: c-adminer
     networks:
       - inceptiNet
@@ -144,7 +140,6 @@ services:
       args: *arg
       tags:
         - i-redis:42.0
-        - i-redis:latest
     container_name: c-redis
     networks:
       - inceptiNet

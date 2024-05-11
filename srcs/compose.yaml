@@ -36,7 +36,6 @@ services:
       - source: ssl-certificate-key
         target: ssl.key
         mode: 0440
-    cap_drop: ['ALL']
     security_opt:
       - no-new-privileges:true
     restart: unless-stopped

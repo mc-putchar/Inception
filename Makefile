@@ -6,7 +6,7 @@
 #    By: mcutura <mcutura@student.42berlin.de>      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/01/29 14:49:52 by mcutura           #+#    #+#              #
-#    Updated: 2024/02/11 10:35:34 by mcutura          ###   ########.fr        #
+#    Updated: 2024/05/10 21:05:44 by mcutura          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,11 +24,17 @@ COMPOSE	:= srcs/compose.yaml
 ENV		:= srcs/.env srcs/mariadb.env srcs/wp.env
 
 # --- TOOLS ---
-DC		:= docker compose
+DC		:= sudo docker compose
 DIR		:= mkdir -p
 RM		:= rm -fr
 
-.PHONY: all dirs up down start stop clean help
+.PHONY: help init up down start stop clean fclean
+
+help:	# Print this helpful message
+	@awk 'BEGIN { \
+	FS = ":.*#"; printf "Usage:\n\tmake <target>\n\nTargets:\n"; } \
+	/^[a-zA-Z_0-9-]+:.*?#/ { \
+	printf "%-16s%s\n", $$1, $$2 } ' Makefile
 
 init:	# Initialize data needed for the project
 	@$(DIR) $(WPDIR) $(WEBDIR) $(DBDIR) $(SSLDIR) $(ADMDIR)
@@ -53,9 +59,3 @@ clean:	# Stop and remove all created containers, volumes and files
 
 fclean: clean	# Remove and reset everything. WARNING: prunes whole docker sys
 	docker system prune --all --force
-
-help:	# Print this helpful message
-	@awk 'BEGIN { \
-	FS = ":.*#"; printf "Usage:\n\tmake <target>\n\nTargets:\n"; } \
-	/^[a-zA-Z_0-9-]+:.*?#/ { \
-	printf "%-16s%s\n", $$1, $$2 } ' Makefile

@@ -64,5 +64,12 @@ echo "Generating SSL certificate..."
 	-addext "subjectAltName=DNS:${DOMAIN},DNS:\*.${DOMAIN}" || exit 1
 echo "SSL certificate stored in ${HOME}/data/ssl/"
 
+# Fetch static website from repository
+read -p "	static site repo (optional):" STATIC_REPO
+git clone \
+	${STATIC_REPO:=https://github.com/mc-putchar/mc-putchar.github.io.git} \
+	${HOME}/data/site-content || echo "ERROR: Failed to clone repo. Manual \
+	override required."
+
 echo "Your LEMP stack is ready to be deployed"
 echo "Bon voyage!"

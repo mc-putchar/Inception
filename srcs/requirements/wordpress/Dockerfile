@@ -12,6 +12,7 @@ RUN adduser -S -G www-data www-data \
 	php81-xml php81-imap php81-pdo php81-pdo_mysql php81-soap php81-posix \
 	php81-gettext php81-ldap php81-ctype php81-dom php81-simplexml php81-zip \
 	php81-tokenizer php81-redis
+RUN ln -sf /usr/bin/php81 /usr/bin/php
 
 WORKDIR /usr/local/bin
 RUN curl -o wp \

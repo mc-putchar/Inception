@@ -8,7 +8,7 @@ cat << __SPLASH__
 #          42 42  Y4  Y*oodP 424242 42       42   42  Y*odP  42  Y4            #
 ################################################################################
 __SPLASH__
-echo "\nWe need to dig deeper...\n"
+echo "We need to dig deeper..."
 
 # Gather needed variables
 echo "Website information:"
@@ -19,7 +19,8 @@ WP_DB_HOST=c-mariadb:3306
 echo "	Database host: " ${WP_DB_HOST}
 read -p "	Database name: " WP_DB_NAME
 read -p "	Database user: " WP_DB_USER
-read -p "FTP:\n\tUsername: " FTP_USER
+echo "FTP:"
+read -p "	Username: " FTP_USER
 echo "Wordpress credentials:"
 read -p "	Admin: " WP_ADMIN
 read -p "	Admin email: " WP_ADMIN_EMAIL
@@ -44,15 +45,16 @@ echo "WP_DB_USER=${WP_DB_USER:=wpuser}" >> srcs/mariadb.env
 echo "# COMPOSE VARS" > srcs/.env
 echo "ALPINE_VERSION=${PENULTIMATE:?'Alpine version not set'}" >> srcs/.env
 echo "DATADIR=${HOME}/data" >> srcs/.env
+echo "FTP_USER=${FTP_USER:?'FTP username not set'}" >> srcs/.env
 
 echo "Generating passwords..."
+echo -n "FTP_PASS=" >> srcs/.env
+openssl rand -base64 32 | tr -d '=+/' | cut -c1-24 >> srcs/.env
 echo -n "WP_DB_PASSWORD=" >> srcs/.env
 openssl rand -base64 32 | tr -d '=+/' | cut -c1-24 >> srcs/.env
 echo -n "WP_ADMIN_PASSWORD=" >> srcs/.env
 openssl rand -base64 32 | tr -d '=+/' | cut -c1-24 >> srcs/.env
 echo -n "WP_USER_PASSWORD=" >> srcs/.env
-openssl rand -base64 32 | tr -d '=+/' | cut -c1-24 >> srcs/.env
-echo -n "FTP_PASS=" >> srcs/.env
 openssl rand -base64 32 | tr -d '=+/' | cut -c1-24 >> srcs/.env
 
 # Create SSL certificate and key
@@ -62,6 +64,8 @@ echo "Generating SSL certificate..."
 	-out "${HOME}/data/ssl/site.crt" \
 	-subj "/C=DE/L=Berlin/O=42Berlin/OU=student/CN=${DOMAIN}" \
 	-addext "subjectAltName=DNS:${DOMAIN},DNS:\*.${DOMAIN}" || exit 1
+chmod 0600 "${HOME}/data/ssl/site.key"
+chmod 0600 "${HOME}/data/ssl/site.crt"
 echo "SSL certificate stored in ${HOME}/data/ssl/"
 
 # Fetch static website from repository
@@ -70,6 +74,9 @@ git clone \
 	${STATIC_REPO:=https://github.com/mc-putchar/mc-putchar.github.io.git} \
 	${HOME}/data/site-content || echo "ERROR: Failed to clone repo. Manual \
 	override required."
+
+chmod +x srcs/requirements/mariadb/entrypoint.sh
+chmod +x srcs/requirements/wordpress/entrypoint.sh
 
 echo "Your LEMP stack is ready to be deployed"
 echo "Bon voyage!"

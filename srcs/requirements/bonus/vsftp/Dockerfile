@@ -1,8 +1,8 @@
 ARG version
-ARG ftpuser
-ARG ftppass
 FROM alpine:${version}
 ENV LANG C.UTF-8
+ARG ftpuser
+ARG ftppass
 RUN apk update && apk add vsftpd
 RUN mkdir /home/${ftpuser} \
 	&& addgroup -S ${ftpuser} \
@@ -13,4 +13,4 @@ RUN mkdir /home/${ftpuser} \
 COPY conf/vsftpd.conf /etc/vsftpd/vsftpd.conf
 
 ENTRYPOINT [ "/usr/sbin/vsftpd", "/etc/vsftpd/vsftpd.conf" ]
-EXPOSE 21
+EXPOSE 4221 42000-42010

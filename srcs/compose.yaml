@@ -152,14 +152,24 @@ services:
     build:
       context: ./requirements/bonus/vsftp
       args:
-        - ftpuser: ${FTP_USER}
-        - ftppass: ${FTP_PASS}
-        - *arg
+        ftpuser: ${FTP_USER}
+        ftppass: ${FTP_PASS}
+        version: ${ALPINE_VERSION}
       tags:
         - i-vsftp:42.0
     container_name: c-vsftp
+    ports:
+      - 4221:4221
+      - 42000-42010:42000-42010
     volumes:
       - wordpress:/home/${FTP_USER}/www
+    secrets:
+      - source: ssl-certificate
+        target: vsftpd.crt
+        mode: 0600
+      - source: ssl-certificate-key
+        target: vsftpd.key
+        mode: 0600
     restart: unless-stopped
 
 volumes:

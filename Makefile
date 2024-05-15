@@ -6,7 +6,7 @@
 #    By: mcutura <mcutura@student.42berlin.de>      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/01/29 14:49:52 by mcutura           #+#    #+#              #
-#    Updated: 2024/05/11 20:45:35 by mcutura          ###   ########.fr        #
+#    Updated: 2024/05/15 12:38:28 by mcutura          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,6 +18,7 @@ DBDIR	:= ${HOME}/data/db-wordpress
 WEBDIR	:= ${HOME}/data/site-content
 SSLDIR	:= ${HOME}/data/ssl
 ADMDIR	:= ${HOME}/data/adminer
+GITDIR	:= ${HOME}/data/gitea
 
 # --- FILES ---
 COMPOSE	:= srcs/compose.yaml
@@ -37,7 +38,7 @@ help:	# Print this helpful message
 	printf "%-16s%s\n", $$1, $$2 } ' Makefile
 
 init:	# Initialize data needed for the project
-	@$(DIR) $(WPDIR) $(WEBDIR) $(DBDIR) $(SSLDIR) $(ADMDIR)
+	@$(DIR) $(WPDIR) $(WEBDIR) $(DBDIR) $(SSLDIR) $(ADMDIR) $(GITDIR)
 	@bash srcs/requirements/tools/init.sh
 
 up:	# Run containers (re)building their images if needed

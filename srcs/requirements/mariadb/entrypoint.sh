@@ -15,4 +15,11 @@ __instructions_end__
 fi
 fi
 
+cat << __instructions_end__ >> /tmp/init.sql
+CREATE DATABASE IF NOT EXISTS gitea ;
+CREATE USER IF NOT EXISTS 'gitea'@'%' IDENTIFIED BY 'gitea' ;
+GRANT ALL PRIVILEGES ON gitea.* TO 'gitea'@'%' WITH GRANT OPTION ;
+FLUSH PRIVILEGES ;
+__instructions_end__
+
 exec "$@"

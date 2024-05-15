@@ -172,6 +172,27 @@ services:
         mode: 0600
     restart: unless-stopped
 
+  gitea:
+    build:
+      context: ./requirements/bonus/gitea
+      args: *arg
+      tags:
+        - i-gitea:42.0
+    container_name: c-gitea
+    networks:
+      - inceptiNet
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    ports:
+      - 3000:3000
+      - 4222:22
+    volumes:
+      - gitea:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    restart: unless-stopped
+
 volumes:
   db-wordpress:
     driver: local
@@ -199,6 +220,13 @@ volumes:
     driver_opts:
       type: none
       device: ${DATADIR}/site-content
+      o: bind
+
+  gitea:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${DATADIR}/gitea
       o: bind
 
 configs:

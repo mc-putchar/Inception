@@ -13,14 +13,17 @@ FLUSH PRIVILEGES ;
 __instructions_end__
 	unset WP_DB_PASSWORD
 fi
-fi
-
-GITEA_DB_PASSWORD=`cat /run/secrets/gitea_db_password`
+if [ -z $(mariadb gitea 2>&1 </dev/null) ]; then
+	echo "FLUSH PRIVILEGES;" >> /tmp/init.sql
+else
+	GITEA_DB_PASSWORD=`cat /run/secrets/gitea_db_password`
 cat << __instructions_end__ >> /tmp/init.sql
 CREATE DATABASE IF NOT EXISTS gitea ;
 CREATE USER IF NOT EXISTS 'gitea'@'%' IDENTIFIED BY '$GITEA_DB_PASSWORD' ;
 GRANT ALL PRIVILEGES ON gitea.* TO 'gitea'@'%' WITH GRANT OPTION ;
 FLUSH PRIVILEGES ;
 __instructions_end__
-
+	unset GITEA_DB_PASSWORD
+fi
+fi
 exec "$@"

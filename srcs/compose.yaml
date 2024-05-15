@@ -104,6 +104,7 @@ services:
       - mariadb.env
     secrets:
       - wp_db_password
+      - gitea_db_password
     healthcheck:
       test: [ "CMD", "mariadb-admin", "ping", "--silent" ]
       interval: 6s

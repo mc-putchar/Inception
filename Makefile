@@ -6,7 +6,7 @@
 #    By: mcutura <mcutura@student.42berlin.de>      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/01/29 14:49:52 by mcutura           #+#    #+#              #
-#    Updated: 2024/05/10 21:05:44 by mcutura          ###   ########.fr        #
+#    Updated: 2024/05/11 20:45:35 by mcutura          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -58,4 +58,4 @@ clean:	# Stop and remove all created containers, volumes and files
 	- $(RM) $(ENV)
 
 fclean: clean	# Remove and reset everything. WARNING: prunes whole docker sys
-	docker system prune --all --force
+	sudo docker system prune --all --force

@@ -1,4 +1,4 @@
-version: '3.8'
+#version: '3.8'
 
 name: inception
 
@@ -146,6 +146,20 @@ services:
       - source: redis_config
         target: /etc/redis.conf
         mode: 0440
+    restart: unless-stopped
+
+  vsftp:
+    build:
+      context: ./requirements/bonus/vsftp
+      args:
+        - ftpuser: ${FTP_USER}
+        - ftppass: ${FTP_PASS}
+        - *arg
+      tags:
+        - i-vsftp:42.0
+    container_name: c-vsftp
+    volumes:
+      - wordpress:/home/${FTP_USER}/www
     restart: unless-stopped
 
 volumes:

@@ -56,6 +56,8 @@ echo -n "WP_ADMIN_PASSWORD=" >> srcs/.env
 openssl rand -base64 32 | tr -d '=+/' | cut -c1-24 >> srcs/.env
 echo -n "WP_USER_PASSWORD=" >> srcs/.env
 openssl rand -base64 32 | tr -d '=+/' | cut -c1-24 >> srcs/.env
+echo -n "GITEA_DB_PASSWORD=" >> srcs/.env
+openssl rand -base64 32 | tr -d '=+/' | cut -c1-24 >> srcs/.env
 
 # Create SSL certificate and key
 echo "Generating SSL certificate..."

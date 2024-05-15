@@ -15,9 +15,10 @@ __instructions_end__
 fi
 fi
 
+GITEA_DB_PASSWORD=`cat /run/secrets/gitea_db_password`
 cat << __instructions_end__ >> /tmp/init.sql
 CREATE DATABASE IF NOT EXISTS gitea ;
-CREATE USER IF NOT EXISTS 'gitea'@'%' IDENTIFIED BY 'gitea' ;
+CREATE USER IF NOT EXISTS 'gitea'@'%' IDENTIFIED BY '$GITEA_DB_PASSWORD' ;
 GRANT ALL PRIVILEGES ON gitea.* TO 'gitea'@'%' WITH GRANT OPTION ;
 FLUSH PRIVILEGES ;
 __instructions_end__

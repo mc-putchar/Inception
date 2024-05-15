@@ -191,6 +191,8 @@ services:
       - gitea:/data
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
+    secrets:
+      - gitea_db_password
     restart: unless-stopped
 
 volumes:
@@ -244,6 +246,8 @@ secrets:
     file: ${DATADIR}/ssl/site.crt
   ssl-certificate-key:
     file: ${DATADIR}/ssl/site.key
+  gitea_db_password:
+    environment: "GITEA_DB_PASSWORD"
   wp_db_password:
     environment: "WP_DB_PASSWORD"
   wp_admin_password:
